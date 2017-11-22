@@ -1,6 +1,6 @@
 /* Written by Dylan Vrana (dylanvrana@gmail.com)
  *
- * An implementation of the square-diamond algorithm for terrain generation
+ * An implementation of the square-diamond algorithm for surface (eg terrain) generation
  * 
  *
  */
@@ -21,12 +21,12 @@
 #define round(x) (int)(x+0.5)
 #define random() ((double)rand()) / (double)INT_MAX // Random value on [0,1]
 
-typedef struct terrain {
+typedef struct diamond_square {
     int** topography;
     int maxh;       // Maximum value of a height
     int dim;        // Array row/col count
     int max_steps;  // The total number of steps that can be taken
-} terrain_t;
+} ds_t;
 
 /* Calculates the dimension of an array from a step count
  * For example, a 0-step is 2x2 (a square), 1-step 3x3, 2-step 5x5, etc
@@ -39,7 +39,7 @@ int dim_from_steps(int steps) {
 /* Returns a scaled intensity value (assuming that T->maxh is the max height
  * (equal to 1.0 = white) and 0 is the min height (equal to 0.0 = black).
  */
-double scaled_col(terrain_t* T, int height) {
+double scaled_col(ds_t* T, int height) {
     const double intensity_range = INTENSITY_MAX - INTENSITY_MIN;
     return (intensity_range * (double)height / (double)(T->maxh)) + INTENSITY_MIN;
 }
@@ -78,11 +78,11 @@ bool draw_square(cairo_t* cr, int x0, int y0, int x1, int y1, double i0, double 
 }
 
 // TODO : errorcheck properly
-/* Draws terrain out to file filename, a png of width width and height height
+/* Draws surface out to file filename, a png of width width and height height
  *
  * Returns true on success, false on failure.
  */
-bool draw_terrain(terrain_t* T,const char* filename,int width,int height) {
+bool draw_ds(ds_t* T,const char* filename,int width,int height) {
     // Initialize
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,width,height);
     cairo_t* cr = cairo_create(surface);
@@ -112,7 +112,7 @@ bool draw_terrain(terrain_t* T,const char* filename,int width,int height) {
     return true;
 }
 
-void d_s_recurse(terrain_t* T,int steps_remaining,int random_magnitude) {
+void d_s_recurse(ds_t* T,int steps_remaining,int random_magnitude) {
     if (steps_remaining <= 0) return;
     int step_size = (1 << steps_remaining) >> 1; // Step size is 2^(n-1), or
     // Diamond step                              // half the side len of square
@@ -150,8 +150,8 @@ void d_s_recurse(terrain_t* T,int steps_remaining,int random_magnitude) {
     return;
 }
 
-// Runs the Diamond-Square algorithm to generate terrain
-void d_s(terrain_t* T) {
+// Runs the Diamond-Square algorithm to generate a surface
+void d_s(ds_t* T) {
     // Use constant initializations for the corners
     int initial = T->maxh / 2;
     /*T->topography[0][0] = initial;
@@ -166,9 +166,9 @@ void d_s(terrain_t* T) {
     return d_s_recurse(T,T->max_steps,T->maxh / 2);
 }
 
-terrain_t* new_terrain(int steps, int maxh) {
+ds_t* new_ds(int steps, int maxh) {
     // TODO : rewrite this to use a proper array, rather than this pointer bullshit
-    terrain_t* T = malloc(sizeof(struct terrain));
+    ds_t* T = malloc(sizeof(ds_t));
 
     T->dim = dim_from_steps(steps);
     T->maxh = maxh;
@@ -182,9 +182,9 @@ terrain_t* new_terrain(int steps, int maxh) {
     return T;
 }
 
-/* Debugging function to print out terrain
+/* Debugging function to print out DS surface
  */
-void print_terrain(terrain_t* T) {
+void print_ds(ds_t* T) {
     for (int i = 0; i < T->dim; i++) {
         for (int j = 0; j < T->dim; j++) {
             printf("%x  ",T->topography[i][j]);
@@ -193,7 +193,7 @@ void print_terrain(terrain_t* T) {
     }
 }
 
-void free_terrain(terrain_t* T) {
+void free_ds(ds_t* T) {
     for (int i = 0; i < T->dim; i++) free(T->topography[i]);
     free(T->topography);
     free(T);

@@ -10,14 +10,14 @@ int main(int argc, char* argv[]) {
     srand(clock());
 
     // Run diamond-square
-    terrain_t* T = new_terrain(10,1<<12);
+    ds_t* T = new_ds(10,1<<12);
 
     // Write diamond-square
-    if (!draw_terrain(T,"hello.png",1<<10,1<<10))
+    if (!draw_ds(T,"hello.png",1<<10,1<<10))
         printf("Drawing failed!\n");
 
     // Clean up
-    free_terrain(T);
+    free_ds(T);
 
     return 0;
 }
