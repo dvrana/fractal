@@ -13,7 +13,7 @@ typedef struct lsystem_string lsys_str_t;
 
 // Defines a new deterministic L-system of n variables n should be less than 
 // or equal to 256 (as variables are internally represented as chars).
-lsys_t* new_lsys(int n);
+lsys_t* lsys_new(int n);
 
 // Adds a rule to L mapping variable from to string to which has length n
 // Note that constants (ie. i -> i) need not be specified
