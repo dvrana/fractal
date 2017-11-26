@@ -8,12 +8,7 @@
 #ifndef _DIAMONDSQUARE_H_
 #define _DIAMONDSQUARE_H_
 
-typedef struct ds {
-    int** topography;
-    int maxh;   // Maximum value of a height
-    int a_lim;  // Array row count
-    int b_lim;  // Array col count
-} ds_t;
+typedef struct ds ds_t;
 
 bool draw_ds(ds_t* T,const char* filename,int width,int height);
 
